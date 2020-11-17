@@ -88,7 +88,7 @@ def wiki_data():
     #comment to test push
 
 def main():
-    cur, conn = setUpDatabase('final_db.db')
+    cur, conn = setUpDatabase('db_test.db')
     #cities = wiki_data()
     #print(cities)
     i = 0
