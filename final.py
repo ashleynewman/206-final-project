@@ -85,6 +85,7 @@ def wiki_data():
     list_of_cities = us_cities['Metropolitan area'].to_list()
 
     return list_of_cities
+    #comment to test push
 
 def main():
     cur, conn = setUpDatabase('final_db.db')
