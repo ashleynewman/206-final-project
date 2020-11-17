@@ -52,6 +52,24 @@ def table_set_up(data, conn, cur, city_name):
         type_of_food = restaurant['categories'][0]['title']
         cur.execute(f'INSERT INTO {city_name} (id_num, name, food_type, rating, longitude, latitude) VALUES ({id_num}, {name}, {type_of_food}, {rating}, {longitude}, {latitude})')
     conn.commit()
+def top_cities():
+    url = 'https://travel.usnews.com/rankings/best-foodie-destinations-in-the-usa/'
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36'}
+
+    r = requests.get(url, headers=headers)
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    list_tags = soup.find_all("h3",{"class":"Heading__HeadingStyled-sc-1w5xk2o-0-h3 kuJtke Heading-sc-1w5xk2o-1 jFucEe"})
+    d = []
+
+    for tag in list_tags:
+        a_tag = tag.find("a",{"class":"Anchor-byh49a-0 jHLCCZ"})
+        name = a_tag.get('href').strip('/')
+        city_name = name.split('_')
+        city_string = ' '.join(city_name)
+        d.append(city_string) 
+
+    return d
 
 def wiki_data():
     soup = BeautifulSoup(requests.get('https://en.wikipedia.org/wiki/List_of_North_American_metropolitan_areas_by_population').text, 'html.parser')
@@ -95,6 +113,8 @@ def main():
     while i < 76:
         table_set_up(city_restaurant_data("New York City", "restaurant", i), conn, cur, "New York City")
         i += 25
+    ls = top_cities()
+    print(ls)
 #average income of cities compared to price of most popular restaurant in that city
 #income of area in NYC compared to most popular restaurant (by rating) for that area
 #major 5 cities incomes compared to 20 most popular restaurants for that city
