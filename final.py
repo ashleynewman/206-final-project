@@ -12,7 +12,9 @@ import matplotlib.pyplot as plt
 # headers = {'Authorization': 'Bearer %s' % API_KEY}
 # base_url = "https://api.yelp.com/v3"
 
-api_key = "3b22c3c6736254515a21e9f73410387b"
+#api_key = "3b22c3c6736254515a21e9f73410387b"
+api_key = "IYyo8JaZe0W8MznnblAr2cRPpDeeTQGa"
+#^new key for ben_weather
 base_url = "https://history.openweathermap.org/data/2.5/aggregated/month?"
 
 def create_connection(database):
@@ -21,10 +23,23 @@ def create_connection(database):
     return cur, conn
 
 def get_url(city_name, month, state_abbr):
-    url = base_url + "q=" + city_name + ",US-" + state_abbr + "&month=" + month + "&appid=" + api_key
-    req = requests.get(url, timeout=100)
+    # url = base_url + "q=" + city_name + ",US-" + state_abbr + "&month=" + month + "&appid=" + api_key
+    # test_url = "api.openweathermap.org/data/2.5/weather?id=524901&appid=" + api_key
+    # test_url = f"http://api.openweathermap.org/data/2.5/find?q=Palo+Alto&units=imperial&type=accurate&mode=json&APPID={api_key}"
+    # test2_url = f"https://history.openweathermap.org/data/2.5/aggregated/year?id=2643743&appid={api_key}"
+    test3_url = f"https://api.meteostat.net/v2/point/climate?lat=40.730610&lon=-73.935242&alt=58&x-api-key={api_key}"
+    # req = requests.get(url, timeout=100)
+    req = requests.get(test3_url)
+
+    # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36'}
+
+    # r = requests.get(url, headers=headers)
+
+
     info = json.loads(req.text)
+    print(json.dumps(info))
     return info
+    
 
 def get_weather_data(data, cur, conn, table_name, month):
     mean_temp = data["result"]["temp"]["mean"]
@@ -35,6 +50,7 @@ def get_weather_data(data, cur, conn, table_name, month):
 
     cur.execute(f'CREATE TABLE IF NOT EXISTS {table_name} (month INTEGER, temp INTEGER, humidity INTEGER, precipitation INTEGER, clouds INTEGER, sunshine INTEGER')
     cur.execute(f'INSERT INTO {table_name} (month, temp, humidity, precipitation, clouds, sunshine)  VALUES (?,?,?,?,?,?)', (month, mean_temp, mean_humidity, mean_rain, mean_clouds, sunshine_hours))
+    print(month, mean_temp, mean_humidity, mean_rain, mean_clouds, sunshine_hours)
     conn.commit()
 
 def get_website_data():
