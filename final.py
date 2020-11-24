@@ -13,9 +13,11 @@ import matplotlib.pyplot as plt
 # base_url = "https://api.yelp.com/v3"
 
 #api_key = "3b22c3c6736254515a21e9f73410387b"
-api_key = "IYyo8JaZe0W8MznnblAr2cRPpDeeTQGa"
-#^new key for ben_weather
-base_url = "https://history.openweathermap.org/data/2.5/aggregated/month?"
+#base_url = "https://history.openweathermap.org/data/2.5/aggregated/month?"
+
+location_lat_long_api_key = "MQosMrFCrMn14jS6h32hinuTQWrHDd5q"
+weather_api_key = "IYyo8JaZe0W8MznnblAr2cRPpDeeTQGa"
+
 
 def create_connection(database):
     conn = sqlite3.connect(database)
@@ -24,20 +26,51 @@ def create_connection(database):
 
 def get_url(city_name, month, state_abbr):
     # url = base_url + "q=" + city_name + ",US-" + state_abbr + "&month=" + month + "&appid=" + api_key
-    # test_url = "api.openweathermap.org/data/2.5/weather?id=524901&appid=" + api_key
-    # test_url = f"http://api.openweathermap.org/data/2.5/find?q=Palo+Alto&units=imperial&type=accurate&mode=json&APPID={api_key}"
-    # test2_url = f"https://history.openweathermap.org/data/2.5/aggregated/year?id=2643743&appid={api_key}"
-    test3_url = f"https://api.meteostat.net/v2/point/climate?lat=40.730610&lon=-73.935242&alt=58&x-api-key={api_key}"
-    # req = requests.get(url, timeout=100)
-    req = requests.get(test3_url)
+    
+    #below, the lat_long_info is a json object with the lat and long coordinates inside
+    #the only thing with the url that needs to change is the "location" parameter I guess
+    #to whatever city name we pass in
+    #otherwise i wouldn't change this url
+    
+    mapquest_url = f"http://open.mapquestapi.com/geocoding/v1/address?key={location_lat_long_api_key}&location=Boston, MA"
+    req2 = requests.get(mapquest_url)
+    lat_long_info = json.loads(req2.text)
+    print("LAT LONG API RESULT: \n\n\n")
+    print(json.dumps(lat_long_info, indent=4))
+    print("DATA:\n")
+    #below gets dictionary of just the lat and long for the city
+    results = lat_long_info['results'][0]['locations'][0]['latLng']
+    #below are the lat and long strings, gotta keep them as strings so we can pass them
+    #into the api for weather data
+    lat_str = results['lat']
+    long_str = results['lng']
+    print(results)
 
-    # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36'}
 
-    # r = requests.get(url, headers=headers)
+    #the "weather_info" json object should return monthly weather data in celcius 
+    #given the lat and long as imputs
+    #otherwise I don't think we need to change anything else about this
 
+    #key = month, val = temp in celcius
+    weather_data = {}
+    
+    url_weather = f"https://api.meteostat.net/v2/point/climate?lat={lat_str}&lon={long_str}&alt=58&x-api-key={weather_api_key}"
+    req = requests.get(url_weather)
+    weather_info = json.loads(req.text)
 
-    info = json.loads(req.text)
-    print(json.dumps(info))
+    data_json = weather_info['data']
+    for month in data_json:
+        #gets month of interest, 1 = Jan, 2 = Feb, 3 = March, etc.
+        month_num_string = month['month']
+        #gets average of month in celcius
+        temp_string_celcius = month['tavg']
+        weather_data[month_num_string] = temp_string_celcius
+    print("Weather API RESULT: \n\n\n")
+    #print(json.dumps(weather_info, indent=4))
+
+    
+    #Not sure what this should return, maybe make 
+    #2 functions, 1 for each api request?
     return info
     
 
