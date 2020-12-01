@@ -61,7 +61,7 @@ def get_weather_data(cur, conn, location):
     return weather_data
     
 
-def weather_table(data, cur, conn, location, temp_list, precip_list):
+def weather_table(data, cur, conn, location, temp_list):
     cur.execute(f'CREATE TABLE IF NOT EXISTS WeatherData (location INTEGER, average_temp_id INTEGER, average_precipitation_id INTEGER)') #, avg_pressure INTEGER, avg_hours_sunshine INTEGER
     temp = 0
     percip = 0
@@ -81,15 +81,8 @@ def weather_table(data, cur, conn, location, temp_list, precip_list):
     else:
         final_temp = temp_list.index(avg_temp)
 
-    final_precip = 0
-    if (avg_percip in precip_list) == False:
-        precip_list.append(avg_percip)
-        final_precip = precip_list.index(avg_percip)
-        cur.execute('INSERT INTO Precipitation (precipitation, id) VALUES (?,?)', (avg_percip, final_precip))
-    else:
-        final_precip = precip_list.index(avg_percip)
  
-    cur.execute(f'INSERT INTO WeatherData (location, average_temp_id, average_precipitation_id) VALUES (?,?,?)', (location, final_temp, final_precip)) #, avg_pressure, avg_sunshine
+    cur.execute(f'INSERT INTO WeatherData (location, average_temp_id, average_precipitation_id) VALUES (?,?,?)', (location, final_temp, avg_percip)) #, avg_pressure, avg_sunshine
     conn.commit()
 
 def website_prep():
@@ -135,33 +128,23 @@ def get_start_index(cur, conn):
     else:
         return 0
     
-# def location_table(cur, conn, location, index):
-#     cur.execute('CREATE TABLE IF NOT EXISTS Locations (location_name TEXT, id INTEGER)')
-#     cur.execute('INSERT INTO Locations (location_name, id) VALUES (?,?)', (location, index))
-#     conn.commit()
 
-def get_temp_precip_lists(cur):
+def get_temp_lists(cur):
     cur.execute('CREATE TABLE IF NOT EXISTS Temperatures (temperature INTEGER, id INTEGER)')
     cur.execute('SELECT temperature FROM Temperatures')
     x = cur.fetchall()
     t = []
     for i in x:
         t.append(i)
-    cur.execute('CREATE TABLE IF NOT EXISTS Precipitation (precipitation INTEGER, id INTEGER)')
-    cur.execute('SELECT precipitation FROM Precipitation')
-    y = cur.fetchall()
-    p = []
-    for i in y:
-        p.append(i)
-    return t, p
+    return t
 
 def main():
-    cur, conn = create_connection("finalData.db")
+    cur, conn = create_connection("finalData1.db")
 
     start = 1
     stop = 25
     row_tags = website_prep()
-    temp_list, precip_list = get_temp_precip_lists(cur)
+    temp_list = get_temp_lists(cur)
 
     while start < stop:
         current_index = get_start_index(cur, conn)
@@ -171,7 +154,7 @@ def main():
 
         location = get_website_data(current_index, row_tags) #list of current location's data from website table
         weather_data = get_weather_data(cur, conn, location[1])
-        weather_table(weather_data, cur, conn, current_index, temp_list, precip_list)
+        weather_table(weather_data, cur, conn, location[1], temp_list)
         website_table(location, cur, conn) #maybe make location the current_index here to reduce database duplicate data
         # location_table(cur, conn, location[1], current_index)
 
