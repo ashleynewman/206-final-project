@@ -216,13 +216,13 @@ def visualization_6(cur):
 
 
 def main():
-    cur, conn = setUpDatabase('attempt3.db')
+    cur, conn = setUpDatabase('finalData.db')
     # visualization_1(cur)
     # visualization_2(cur) 
     # visualization_3(cur)
     # visualization_4(cur)
     # visualization_5(cur)
-    visualization_6(cur)
+    # visualization_6(cur)
     
 
 
