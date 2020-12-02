@@ -210,13 +210,77 @@ def visualization_6(cur):
     cur.execute('SELECT avg_temp, avg_precipitation, city, total_score FROM WeatherData, HappyData JOIN Locations WHERE Locations.id = WeatherData.location')
     x = cur.fetchall()
     print(x)
+#-----------------------------------------------------------------------------
 
+def calculation(cur):
+    cur.execute('SELECT temperature FROM WeatherData JOIN Temperatures ON Temperatures.id = WeatherData.average_temp_id')
+    temperatures = cur.fetchall()
+    cur.execute('SELECT total_score FROM HappyData')
+    happy_scores = cur.fetchall()
+    cur.execute('SELECT average_precipitation_id FROM WeatherData')
+    precip = cur.fetchall()
+    return temperatures, happy_scores, precip
 
+def visualization1(temp, happy):
+    x = []
+    y = []
+    for i in temp:
+        x.append(i[0])
+    for i in happy:
+        y.append(i[0])
+    fig, ax = plt.subplots()
+    ax.scatter(x, y, color='#32db84')
+    ax.set_xlabel('temperature in degrees Celcius')
+    ax.set_ylabel('total happiness score')
+    ax.set_title('Happiness Scores vs. Average Temperatures for Different US Cities')
+    z = np.polyfit(x, y, 1)
+    p = np.poly1d(z)
+    plt.plot(x, p(x), "r-")
+    r = np.corrcoef(x, y)
+    print("correlation coefficient: " + str(r[0,1]))
 
+    s1 = sorted(x)
+    s2 = sorted(y)
+    avg1 = (s1[0] + s1[-1]) / 2
+    avg2 = (s2[0] + s2[-1]) / 2
+    plt.axvline(avg1)
+    plt.axhline(avg2)
+    fig.savefig('v1.png')
+    plt.show()
 
+def visualization2(precip, happy):
+    x = []
+    y = []
+    for i in precip:
+        x.append(i[0])
+    for i in happy:
+        y.append(i[0])
+    fig, ax = plt.subplots()
+    ax.scatter(x, y, color='#7303fc')
+    ax.set_xlabel('precipitation in mm')
+    ax.set_ylabel('total happiness score')
+    ax.set_title('Happiness Scores vs. Precipitation for Different US Cities')
+    z = np.polyfit(x, y, 1)
+    p = np.poly1d(z)
+    plt.plot(x, p(x), "r-")
+    r = np.corrcoef(x, y)
+    print("correlation coefficient: " + str(r[0,1]))
+
+    s1 = sorted(x)
+    s2 = sorted(y)
+    avg1 = (s1[0] + s1[-1]) / 2
+    avg2 = (s2[0] + s2[-1]) / 2
+    plt.axvline(avg1)
+    plt.axhline(avg2)
+
+    fig.savefig('v2.png')
+    plt.show()
 
 def main():
-    cur, conn = setUpDatabase('finalData.db')
+    cur, conn = setUpDatabase('finalData1.db')
+    temperatures, happy_scores, precipitation = calculation(cur)
+    visualization1(temperatures, happy_scores)
+    visualization2(precipitation, happy_scores)
     # visualization_1(cur)
     # visualization_2(cur) 
     # visualization_3(cur)
