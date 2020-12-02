@@ -149,7 +149,7 @@ def main():
     while start < stop:
         current_index = get_start_index(cur, conn)
         if current_index == -1:
-            calcs_vis.main()
+            #calcs_vis.main()
             break
 
         location = get_website_data(current_index, row_tags) #list of current location's data from website table
