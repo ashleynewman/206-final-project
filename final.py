@@ -82,6 +82,8 @@ def weather_table(data, cur, conn, location, temp_list):
  
     avg_temp = temp / 12
     avg_percip = percip / 12
+    avg_temp = round(avg_temp, 2)
+    avg_percip = round(avg_percip, 2)
 
     final_temp = 0
     if (avg_temp in temp_list) == False:
