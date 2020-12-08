@@ -14,7 +14,7 @@ def create_connection(database):
     connection to the cursor using the name of the database given. 
     It returns the connection variable and cursor variable to allow 
     access into the database.'''
-    conn = sqlite3.connect(database)
+    conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)),database))
     cur = conn.cursor()
     return cur, conn
 

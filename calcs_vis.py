@@ -13,13 +13,12 @@ def setUpDatabase(db_name):
     '''This function takes in the name of the database and creates a connection and cursor to it.
     It returns the cursor and connection.'''
 
-    path = os.path.dirname(os.path.abspath(__file__))
-    conn = sqlite3.connect(path+'/'+db_name)
+    conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)),db_name))
     cur = conn.cursor()
     return cur, conn
 
 def calculation(cur):
-    '''This function takes in the cursor for finalData1 as input. Uses SQL SELECT...FROM...JOIN 
+    '''This function takes in the cursor as input. Uses SQL SELECT...FROM...JOIN 
     statement to find where temperature that results from joining the WeatherData and Temperature
      tables together. This list of temperatures is extracted with the fetchall() command. The uses 
      SELECT statement to extract a list of the happiness rating scores from the HappyData table. 
@@ -42,8 +41,8 @@ def write_csv(x, y, names_city, file_name, headers):
     '''This function takes in x and y axis data as lists, a list of city names, the csv file to 
     write to, and the headers to include at the top of the csv file. Writes to the csv file all of the
     information passed in from the x data, y data and city lists and does not return anything.'''
-
-    file = open(file_name, mode='w', newline='', encoding="utf8")
+    path = os.path.dirname(os.path.abspath(__file__))
+    file = open(path + "/calculations/" + file_name, mode='w', newline='', encoding="utf8")
     writer = csv.writer(file, delimiter=',')
     writer.writerow(headers)
     for i in range(len(x)):
@@ -84,7 +83,8 @@ def visualization1(temp, happy, city_names):
     avg2 = (s2[0] + s2[-1]) / 2
     plt.axvline(avg1)
     plt.axhline(avg2)
-    fig.savefig('tempHappyScatterplot.png')
+    path = os.path.dirname(os.path.abspath(__file__))
+    fig.savefig(path + "/visualizations/tempHappyScatterplot.png") 
     plt.show()
 
 def visualization2(precip, happy, city_names):
@@ -122,7 +122,8 @@ def visualization2(precip, happy, city_names):
     plt.axvline(avg1)
     plt.axhline(avg2)
 
-    fig.savefig('precipHappyScatterplot.png')
+    path = os.path.dirname(os.path.abspath(__file__))
+    fig.savefig(path + "/visualizations/precipHappyScatterplot.png")
     plt.show()
 
 def box_and_wiskers(data, x_label, fig_name, title, csv_name):
@@ -141,7 +142,8 @@ def box_and_wiskers(data, x_label, fig_name, title, csv_name):
     ax1.set_xlabel(x_label)
 
     plt.boxplot(good_data, vert=False)
-    fig1.savefig(fig_name)   
+    path = os.path.dirname(os.path.abspath(__file__))
+    fig1.savefig(path + "/visualizations/" + fig_name)  
     plt.show()
 
     quartiles = percentile(good_data, [25, 50, 75]).tolist()
@@ -149,7 +151,8 @@ def box_and_wiskers(data, x_label, fig_name, title, csv_name):
 
     iqr = stats.iqr(good_data, interpolation='midpoint')
 
-    file = open(csv_name, mode='w', newline='', encoding="utf8")
+    path = os.path.dirname(os.path.abspath(__file__))
+    file = open(path + "/calculations/" + csv_name, mode='w', newline='', encoding="utf8")
     writer = csv.writer(file, delimiter=',')
     writer.writerow(['Min', 'Q1', 'Median', 'Q3', 'Max', 'IQR'])
     writer.writerow([data_min, quartiles[0], quartiles[1], quartiles[2], data_max, iqr])
